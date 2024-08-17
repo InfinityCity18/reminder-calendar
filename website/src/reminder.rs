@@ -1,10 +1,11 @@
 use gloo_net::http::Request;
+use log::debug;
 use serde::{Deserialize, Serialize};
 use yew::prelude::*;
 
 use crate::SERVER_URL;
 
-#[derive(PartialEq, Clone, Deserialize, Serialize, Properties)]
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize, Properties)]
 pub struct ReminderProps {
     pub name: String,
     pub month: u8,
@@ -28,12 +29,16 @@ pub fn Reminder(props: &ReminderProps) -> Html {
                 reminder_month,
                 reminder_name,
             };
+            debug!("HI {:?}", &post_json);
 
             let post_json = serde_json::to_value(post_json).unwrap();
 
-            Request::post(SERVER_URL)
+            Request::post(&(SERVER_URL.to_owned() + "/checkbox"))
                 .json(&post_json)
-                .expect("sending checkbox state failed");
+                .expect("sending checkbox state failed")
+                .send()
+                .await
+                .unwrap();
         });
     });
 

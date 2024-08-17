@@ -58,7 +58,7 @@ pub fn MonthList(props: &MonthListProps) -> Html {
     }
 }
 
-#[derive(Properties, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Properties, PartialEq, Clone, Serialize, Deserialize)]
 pub struct MonthListProps {
     pub months_names: Vec<String>,
     pub months_reminders: Vec<Vec<ReminderProps>>,

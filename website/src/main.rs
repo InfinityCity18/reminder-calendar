@@ -7,34 +7,40 @@ use yew::prelude::*;
 mod monthlist;
 mod reminder;
 
-const SERVER_URL: &str = "http://localhost:2137/reminders"; // CHANGE TO TAKE ARGUMENTS OR ENV
+const SERVER_URL: &str = "http://localhost:2137"; // CHANGE TO TAKE ARGUMENTS OR ENV
 
 #[function_component]
 fn App() -> Html {
     wasm_logger::init(wasm_logger::Config::default());
     info!("TEST");
-    let hook = use_state(|| None);
+    let hook = use_state(|| MonthListProps {
+        months_reminders: Vec::new(),
+        months_names: Vec::new(),
+    });
     {
         let hook = hook.clone();
-        info!("TEST");
-        wasm_bindgen_futures::spawn_local(async move {
-            let response = Request::get(SERVER_URL)
-                .send()
-                .await
-                .expect("failed to initalize months");
-            debug!("help me : {:?}", response.text().await);
-            let data: MonthListProps = response
-                .json()
-                .await
-                .expect("deserialization of months failed");
-            hook.set(Some(data));
+        use_effect_with((), move |_| {
+            let hook = hook.clone();
+            wasm_bindgen_futures::spawn_local(async move {
+                let response = Request::get(&(SERVER_URL.to_string() + "/reminders"))
+                    .send()
+                    .await
+                    .expect("failed to initalize months");
+                debug!("help me : ");
+                let data: MonthListProps = response
+                    .json()
+                    .await
+                    .expect("deserialization of months failed");
+                debug!("DATA : {:?}", &data);
+                hook.set(data);
+                debug!("WHAT");
+            });
+            || ()
         });
     }
-
-    let props = (*hook).clone().expect("none got from response");
-
+    debug!("HOOK : {:?}", &hook);
     html! {
-        <MonthList ..props/>
+        <MonthList ..(*hook).clone()/>
     }
 }
 
