@@ -7,7 +7,7 @@ use crate::SERVER_URL;
 #[derive(PartialEq, Clone, Deserialize, Serialize, Properties)]
 pub struct ReminderProps {
     pub name: String,
-    pub month: String,
+    pub month: u8,
     pub day: u8,
     pub checked: bool,
 }
@@ -49,5 +49,5 @@ pub fn Reminder(props: &ReminderProps) -> Html {
 struct CheckboxPostData {
     checked: bool,
     reminder_name: String,
-    reminder_month: String,
+    reminder_month: u8,
 }
