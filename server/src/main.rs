@@ -5,12 +5,17 @@ use axum::routing::{get, post};
 use axum::{Json, Router};
 use serde::{Deserialize, Serialize};
 use tracing::debug;
+use tracing::info;
 use tracing::instrument;
+use tracing_subscriber::prelude::*;
 
 const BIND_SOCK_ADDR: &str = "localhost:2137"; // change to take from env or arg !!!!!
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    tracing_subscriber::fmt().init();
+
+    info!("Tracing initialized");
     let path = "data.json";
 
     let app = Router::new()
@@ -35,28 +40,32 @@ async fn cors_shenanigans() -> impl IntoResponse {
 }
 #[instrument]
 async fn send_reminders(path: &str) -> impl IntoResponse {
-    debug!("GOT REMINDER CLIENT");
+    info!("GOT REMINDER CLIENT");
     let mut headers = HeaderMap::new();
     headers.insert("Access-Control-Allow-Origin", "*".parse().unwrap());
     (headers, Json(get_data_from_json_file(path).unwrap()))
 }
 #[instrument]
-async fn checkbox(payload: CheckboxPostData, path: &str) {
-    debug!("GOT checkbox CLIENT");
+async fn checkbox(payload: CheckboxPostData, path: &str) -> impl IntoResponse {
     use std::io::BufWriter;
     let mut d = get_data_from_json_file(path).unwrap();
     for remd in &mut d.months_reminders[payload.reminder_month as usize] {
-        debug!("REMINDER : {:?}", remd);
-        debug!("PAYLOAD : {:?}", payload);
+        info!("REMINDER : {:?}", remd);
+        info!("PAYLOAD : {:?}", payload);
         if remd.name == payload.reminder_name {
             remd.checked = payload.checked;
         }
     }
+    info!("d : {:?}", &d);
 
     let file = std::fs::File::create(path).unwrap();
     let writer = BufWriter::new(file);
 
     serde_json::to_writer(writer, &d).unwrap();
+
+    let mut headers = HeaderMap::new();
+    headers.insert("Access-Control-Allow-Origin", "*".parse().unwrap());
+    headers
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

@@ -1,5 +1,5 @@
 use gloo_net::http::Request;
-use log::debug;
+use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use yew::prelude::*;
 
@@ -17,15 +17,18 @@ pub struct ReminderProps {
 pub fn Reminder(props: &ReminderProps) -> Html {
     let is_checked = use_state(|| props.checked);
     let props_clone = props.clone();
+    let is_checked_clone = is_checked.clone();
+    info!("BEFORE SETTING {:?}", *is_checked);
 
     let on_checking = Callback::from(move |_| {
-        let is_checked_clone = is_checked.clone();
+        is_checked_clone.set(!(*is_checked_clone));
+        info!("AFTER SETTING {:?}", *is_checked_clone);
         let reminder_month = props_clone.month.clone();
         let reminder_name = props_clone.name.clone();
-
+        let is_checked_clone_async = is_checked_clone.clone();
         wasm_bindgen_futures::spawn_local(async move {
             let post_json = CheckboxPostData {
-                checked: *is_checked_clone,
+                checked: !*is_checked_clone_async,
                 reminder_month,
                 reminder_name,
             };
@@ -45,7 +48,7 @@ pub fn Reminder(props: &ReminderProps) -> Html {
     html! {
         <div>
         <label for={props.name.clone()}>{props.name.clone()}</label>
-      <input onclick={on_checking.clone()} type="checkbox" name={props.name.clone()} id={props.name.clone()} checked={props.checked} />
+      <input onclick={on_checking.clone()} type="checkbox" name={props.name.clone()} id={props.name.clone()} checked={*is_checked} />
         </div>
     }
 }
