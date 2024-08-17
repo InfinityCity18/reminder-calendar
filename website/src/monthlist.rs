@@ -1,3 +1,5 @@
+use serde::Deserialize;
+use serde::Serialize;
 use yew::prelude::*;
 
 use crate::reminder::Reminder;
@@ -11,6 +13,8 @@ pub fn Month(props: &MonthProps) -> Html {
     let on_click_unfold = Callback::from(move |_| {
         if *is_hidden_clone {
             is_hidden_clone.set(false);
+        } else {
+            is_hidden_clone.set(true);
         }
     });
 
@@ -33,6 +37,29 @@ pub fn Month(props: &MonthProps) -> Html {
 
 #[derive(Clone, PartialEq, Properties)]
 pub struct MonthProps {
-    month_name: AttrValue,
-    reminder_list: Vec<ReminderProps>,
+    pub month_name: String,
+    pub reminder_list: Vec<ReminderProps>,
+}
+
+#[function_component]
+pub fn MonthList(props: &MonthListProps) -> Html {
+    let months = props
+        .months_names
+        .iter()
+        .zip(props.months_reminders.clone().into_iter())
+        .map(|(name, list)| {
+            html! {
+                <Month month_name={name.clone()} reminder_list={list}/>
+            }
+        });
+
+    html! {
+        { for months }
+    }
+}
+
+#[derive(Properties, PartialEq, Clone, Serialize, Deserialize)]
+pub struct MonthListProps {
+    pub months_names: [String; 12],
+    pub months_reminders: [Vec<ReminderProps>; 12],
 }

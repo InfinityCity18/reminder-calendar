@@ -1,5 +1,3 @@
-use std::clone;
-
 use gloo_net::http::Request;
 use serde::{Deserialize, Serialize};
 use yew::prelude::*;
@@ -8,9 +6,9 @@ use crate::SERVER_URL;
 
 #[derive(PartialEq, Clone, Deserialize, Serialize, Properties)]
 pub struct ReminderProps {
-    name: String,
-    day: u8,
-    checked: bool,
+    pub name: String,
+    pub day: u8,
+    pub checked: bool,
 }
 
 #[function_component]

@@ -1,3 +1,7 @@
+use crate::monthlist::MonthList;
+use crate::reminder::ReminderProps;
+use gloo_net::http::Request;
+use monthlist::MonthListProps;
 use yew::prelude::*;
 
 mod monthlist;
@@ -7,7 +11,29 @@ const SERVER_URL: &str = "https://"; // CHANGE TO TAKE ARGUMENTS OR ENV
 
 #[function_component]
 fn App() -> Html {
-    html! {<button></button>}
+    let hook = use_state(|| None);
+    {
+        let hook = hook.clone();
+        use_effect(move || {
+            wasm_bindgen_futures::spawn_local(async move {
+                let response = Request::get(SERVER_URL)
+                    .send()
+                    .await
+                    .expect("failed to initalize months");
+                let data: MonthListProps = response
+                    .json()
+                    .await
+                    .expect("deserialization of months failed");
+                hook.set(Some(data));
+            })
+        })
+    }
+
+    let props = (*hook).clone().expect("none got from response");
+
+    html! {
+        <MonthList ..props/>
+    }
 }
 
 fn main() {
