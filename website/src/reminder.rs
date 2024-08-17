@@ -1,0 +1,46 @@
+use std::clone;
+
+use gloo_net::http::Request;
+use serde::{Deserialize, Serialize};
+use yew::prelude::*;
+
+use crate::SERVER_URL;
+
+#[derive(PartialEq, Clone, Deserialize, Serialize, Properties)]
+pub struct ReminderProps {
+    name: String,
+    day: u8,
+    checked: bool,
+}
+
+#[function_component]
+pub fn Reminder(props: &ReminderProps) -> Html {
+    let is_checked = use_state(|| props.checked);
+
+    let on_checking = Callback::from(move |_| {
+        let is_checked_clone = is_checked.clone();
+        wasm_bindgen_futures::spawn_local(async move {
+            let post_json = CheckboxPostData {
+                checked: *is_checked_clone,
+            };
+
+            let post_json = serde_json::to_value(post_json).unwrap();
+
+            Request::post(SERVER_URL)
+                .json(&post_json)
+                .expect("sending checkbox state failed");
+        });
+    });
+
+    html! {
+        <div>
+        <label for={props.name.clone()}>{props.name.clone()}</label>
+      <input onclick={on_checking.clone()} type="checkbox" name={props.name.clone()} id={props.name.clone()} checked={props.checked} />
+        </div>
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+struct CheckboxPostData {
+    checked: bool,
+}

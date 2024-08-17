@@ -1,22 +1,38 @@
-use gloo_net::http::Request;
 use yew::prelude::*;
 
-use crate::{remainder::Remainder, SERVER_URL};
+use crate::reminder::Reminder;
+use crate::reminder::ReminderProps;
 
 #[function_component]
-pub fn MonthList(props: &MonthListProps) -> Html {
-    let reminders: Vec<Remainder> = Request::get(SERVER_URL)
-        .send()
-        .await
-        .unwrap()
-        .json()
-        .await
-        .unwrap();
-    html! {}
+pub fn Month(props: &MonthProps) -> Html {
+    let is_hidden = use_state(|| false);
+
+    let is_hidden_clone = is_hidden.clone();
+    let on_click_unfold = Callback::from(move |_| {
+        if *is_hidden_clone {
+            is_hidden_clone.set(false);
+        }
+    });
+
+    let reminders = props
+        .reminder_list
+        .iter()
+        .map(|remind_props: &ReminderProps| {
+            html! { <Reminder ..remind_props.clone() /> }
+        });
+
+    html! {
+        <>
+        <div onclick={on_click_unfold.clone()}>{props.month_name.clone()}</div>
+        <div id={props.month_name.clone()} hidden={*is_hidden}>
+        { for reminders }
+        </div>
+        </>
+    }
 }
 
 #[derive(Clone, PartialEq, Properties)]
-pub struct MonthListProps {
-    month: AttrValue,
-    reminder_list: Vec<Remainder>,
+pub struct MonthProps {
+    month_name: AttrValue,
+    reminder_list: Vec<ReminderProps>,
 }
