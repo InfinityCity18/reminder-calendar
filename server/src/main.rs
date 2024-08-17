@@ -1,4 +1,4 @@
-use anyhow::{Ok, Result};
+use anyhow::Result;
 use axum::routing::{get, post};
 use axum::{Json, Router};
 use serde::{Deserialize, Serialize};
@@ -7,9 +7,11 @@ const BIND_SOCK_ADDR: &str = "localhost:2137"; // change to take from env or arg
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let path = "/data.json";
+
     let app = Router::new()
         // `GET /` goes to `root`
-        .route("/", get(root))
+        .route("/", get(|| async { send_reminders(path).await }))
         // `POST /users` goes to `create_user`
         .route("/", post(create_user));
 
@@ -19,7 +21,27 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn send_reminders() -> {}
+async fn send_reminders(path: &str) -> Json<RemindersData> {
+    Json(get_data_from_json_file(path).unwrap())
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-struct RemindersData {}
+struct RemindersData {
+    pub months_names: [String; 12],
+    pub months_reminders: [Vec<Reminder>; 12],
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+struct Reminder {
+    pub name: String,
+    pub day: u8,
+    pub checked: bool,
+}
+
+fn get_data_from_json_file(path: &str) -> Result<RemindersData> {
+    let f = std::fs::File::open(path)?;
+    let r = std::io::BufReader::new(f);
+
+    let d: RemindersData = serde_json::from_reader(r)?;
+    Ok(d)
+}

@@ -7,6 +7,7 @@ use crate::SERVER_URL;
 #[derive(PartialEq, Clone, Deserialize, Serialize, Properties)]
 pub struct ReminderProps {
     pub name: String,
+    pub month: String,
     pub day: u8,
     pub checked: bool,
 }
@@ -14,12 +15,18 @@ pub struct ReminderProps {
 #[function_component]
 pub fn Reminder(props: &ReminderProps) -> Html {
     let is_checked = use_state(|| props.checked);
+    let props_clone = props.clone();
 
     let on_checking = Callback::from(move |_| {
         let is_checked_clone = is_checked.clone();
+        let reminder_month = props_clone.month.clone();
+        let reminder_name = props_clone.name.clone();
+
         wasm_bindgen_futures::spawn_local(async move {
             let post_json = CheckboxPostData {
                 checked: *is_checked_clone,
+                reminder_month,
+                reminder_name,
             };
 
             let post_json = serde_json::to_value(post_json).unwrap();
@@ -41,4 +48,6 @@ pub fn Reminder(props: &ReminderProps) -> Html {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 struct CheckboxPostData {
     checked: bool,
+    reminder_name: String,
+    reminder_month: String,
 }
