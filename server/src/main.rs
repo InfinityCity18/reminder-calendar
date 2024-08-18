@@ -24,11 +24,23 @@ async fn main() -> Result<()> {
             "/checkbox",
             post(|Json(payload): Json<CheckboxPostData>| async { checkbox(payload, path).await })
                 .options(cors_shenanigans),
+        )
+        .route(
+            "/add",
+            post(|Json(payload): Json<ReminderAddData>| async {
+                add_reminder(payload, path).await
+            }),
         );
 
     let listener = tokio::net::TcpListener::bind(BIND_SOCK_ADDR).await.unwrap();
     axum::serve(listener, app).await?;
     Ok(())
+}
+
+async fn add_reminder(payload: ReminderAddData, path: &str) -> impl IntoResponse {
+    let mut headers = HeaderMap::new();
+    headers.insert("Access-Control-Allow-Origin", "*".parse().unwrap());
+    headers
 }
 
 #[instrument]
@@ -100,4 +112,11 @@ struct CheckboxPostData {
     checked: bool,
     reminder_name: String,
     reminder_month: u8,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct ReminderAddData {
+    pub day: i32,
+    pub name: String,
+    pub months: HashSet<i32>,
 }

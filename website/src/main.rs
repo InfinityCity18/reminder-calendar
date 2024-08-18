@@ -1,9 +1,11 @@
+use crate::form::Form;
 use crate::monthlist::MonthList;
 use gloo_net::http::Request;
 use log::{debug, info};
 use monthlist::MonthListProps;
 use yew::prelude::*;
 
+mod form;
 mod monthlist;
 mod reminder;
 
@@ -40,7 +42,10 @@ fn App() -> Html {
     }
     debug!("HOOK : {:?}", &hook);
     html! {
+        <>
+        <Form months={(*hook).months_names.clone()}/>
         <MonthList ..(*hook).clone()/>
+        </>
     }
 }
 
