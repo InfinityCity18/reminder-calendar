@@ -30,6 +30,24 @@ input.remindercheckbox {
   transform: scale(2.25);
 }
 
+/* NOT ADDED TO MEDIA */
+
+.form-months {
+  color: #e8e8e8;
+}
+
+.form-name-input {
+  color: #e8e8e8;
+}
+
+.form-day-input {
+  color: #e8e8e8;
+}
+
+.reminderform {
+  position: fixed;
+}
+
 @media (max-width: 1000px) {
 
   body {

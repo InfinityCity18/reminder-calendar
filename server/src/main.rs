@@ -4,10 +4,8 @@ use axum::response::IntoResponse;
 use axum::routing::{get, post};
 use axum::{Json, Router};
 use serde::{Deserialize, Serialize};
-use tracing::debug;
 use tracing::info;
 use tracing::instrument;
-use tracing_subscriber::prelude::*;
 
 const BIND_SOCK_ADDR: &str = "10.21.37.100:2137"; // change to take from env or arg !!!!!
 
@@ -29,15 +27,18 @@ async fn main() -> Result<()> {
             "/add",
             post(|Json(payload): Json<ReminderAddData>| async {
                 add_reminder(payload, path).await
-            }),
+            })
+            .options(cors_shenanigans),
         );
-
     let listener = tokio::net::TcpListener::bind(BIND_SOCK_ADDR).await.unwrap();
     axum::serve(listener, app).await?;
     Ok(())
 }
 
+#[instrument]
 async fn add_reminder(payload: ReminderAddData, path: &str) -> impl IntoResponse {
+    info!("ADD REMINDER");
+
     let mut headers = HeaderMap::new();
     headers.insert("Access-Control-Allow-Origin", "*".parse().unwrap());
     headers
@@ -118,5 +119,5 @@ struct CheckboxPostData {
 pub struct ReminderAddData {
     pub day: i32,
     pub name: String,
-    pub months: HashSet<i32>,
+    pub months: Vec<i32>,
 }
