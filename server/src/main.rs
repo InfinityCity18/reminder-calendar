@@ -49,6 +49,11 @@ async fn send_reminders(path: &str) -> impl IntoResponse {
 async fn checkbox(payload: CheckboxPostData, path: &str) -> impl IntoResponse {
     use std::io::BufWriter;
     let mut d = get_data_from_json_file(path).unwrap();
+
+    let backup = std::fs::File::create(path.to_owned() + ".backup").unwrap();
+    let backup_writer = BufWriter::new(backup);
+    serde_json::to_writer(backup_writer, &d).unwrap();
+
     for remd in &mut d.months_reminders[payload.reminder_month as usize] {
         info!("REMINDER : {:?}", remd);
         info!("PAYLOAD : {:?}", payload);

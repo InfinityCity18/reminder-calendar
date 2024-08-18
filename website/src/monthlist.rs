@@ -27,8 +27,8 @@ pub fn Month(props: &MonthProps) -> Html {
 
     html! {
         <>
-        <div onclick={on_click_unfold.clone()}>{props.month_name.clone()}</div>
-        <div id={props.month_name.clone()} hidden={*is_hidden}>
+        <div class="month" onclick={on_click_unfold.clone()}>{props.month_name.clone()}</div>
+        <div class="monthbox" id={props.month_name.clone()} hidden={*is_hidden}>
         { for reminders }
         </div>
         </>
