@@ -46,6 +46,44 @@ input.remindercheckbox {
 
 .reminderform {
   position: fixed;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #e8e8e8;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding-left: 5px;
+  padding-right: 5px;
+  border-radius: 15px;
+  background-color: #44464a;
+  z-index: 2137;
+}
+
+.topbar {
+  margin-left: -10px;
+  margin-right: -10px;
+  margin-top: -10px;
+  border-color: #E8E8E8;
+  background-color: #E8E8E8;
+  border-width: 5px;
+  border-style: solid;
+}
+
+.toggle-form-button {
+  margin-left: 5px;
+}
+
+.send-form-button {
+  display: block;
+  margin-left: auto;
+  margin-bottom: 15px;
+  margin-right: auto;
+  text-align: center;
+  color: #E8E8E8;
+  border-style: solid;
+  border-color: #E8E8E8;
+  border-radius: 5px;
+  background-color: #44464a;
 }
 
 @media (max-width: 1000px) {

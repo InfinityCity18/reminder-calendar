@@ -9,9 +9,15 @@ use yew::prelude::*;
 
 #[function_component]
 pub fn Form(props: &FormProps) -> Html {
+    let form_hidden = use_state(|| true);
     let set = use_state(|| HashSet::<i32>::new());
     let reminder_name = use_state(|| String::new());
     let reminder_day = use_state(|| 0);
+
+    let form_hidden_clone = form_hidden.clone();
+    let change_form_vis = Callback::from(move |_| {
+        form_hidden_clone.set(!(*form_hidden_clone));
+    });
 
     let month_checkboxes = props.months.iter().zip(0..=11).map(|(month_name, i)| {
         let set = set.clone();
@@ -84,7 +90,11 @@ pub fn Form(props: &FormProps) -> Html {
     });
 
     html! {
-        <div class="reminderform">
+        <>
+        <div class="topbar">
+        <input class="toggle-form-button" type="button" onclick={change_form_vis} value={"Add reminder"} />
+        </div>
+        <div class="reminderform" hidden={*form_hidden}>
             <label class="form-name-input" for="remindername">{"Name of the reminder:"}<br/></label>
             <input onchange={on_name_input} type="text" name="remindername" />
             <br/><br/>
@@ -96,8 +106,9 @@ pub fn Form(props: &FormProps) -> Html {
             { for month_checkboxes }
 
             <br/>
-            <input type="button" onclick={send_reminder} value={"Send"} />
+            <input class="send-form-button" type="button" onclick={send_reminder} value={"Send"} />
         </div>
+        </>
     }
 }
 
