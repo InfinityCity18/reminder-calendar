@@ -7,7 +7,7 @@ use yew::prelude::*;
 mod monthlist;
 mod reminder;
 
-const SERVER_URL: &str = "http://localhost:2137"; // CHANGE TO TAKE ARGUMENTS OR ENV
+const SERVER_URL: &str = "http://10.21.37.100:2137"; // CHANGE TO TAKE ARGUMENTS OR ENV
 
 #[function_component]
 fn App() -> Html {

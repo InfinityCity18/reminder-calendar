@@ -1,2 +1,4 @@
 [serve]
 headers = { "Access-Control-Allow-Origin" = "*"}
+address = "10.21.37.100"
+port = 8000

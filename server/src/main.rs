@@ -9,7 +9,7 @@ use tracing::info;
 use tracing::instrument;
 use tracing_subscriber::prelude::*;
 
-const BIND_SOCK_ADDR: &str = "localhost:2137"; // change to take from env or arg !!!!!
+const BIND_SOCK_ADDR: &str = "10.21.37.100:2137"; // change to take from env or arg !!!!!
 
 #[tokio::main]
 async fn main() -> Result<()> {
