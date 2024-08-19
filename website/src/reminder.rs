@@ -47,8 +47,8 @@ pub fn Reminder(props: &ReminderProps) -> Html {
 
     html! {
         <div class="reminder">
-        <label for={props.name.clone()}>{props.day.clone()}{" - "}{props.name.clone()}</label>
-      <input class="remindercheckbox" onclick={on_checking.clone()} type="checkbox" name={props.name.clone()} id={props.name.clone()} checked={*is_checked} />
+        <label for={props.name.clone() + &props.month.to_string()}>{props.day.clone()}{" - "}{props.name.clone()}</label>
+      <input class="remindercheckbox" onclick={on_checking.clone()} type="checkbox" name={props.name.clone()} id={props.name.clone() + &props.month.to_string()} checked={*is_checked} />
         </div>
     }
 }

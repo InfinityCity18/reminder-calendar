@@ -93,6 +93,7 @@ pub fn Form(props: &FormProps) -> Html {
         <>
         <div class="topbar">
         <input class="toggle-form-button" type="button" onclick={change_form_vis} value={"Add reminder"} />
+        <input class="delete-reminder-button" type="button" /*onclick={change_delete_vis}*/ value={"Delete reminder"} />
         </div>
         <div class="reminderform" hidden={*form_hidden}>
             <label class="form-name-input" for="remindername">{"Name of the reminder:"}<br/></label>
@@ -100,7 +101,7 @@ pub fn Form(props: &FormProps) -> Html {
             <br/><br/>
 
             <label class="form-day-input" for="reminderday">{"Day of the reminder:"}<br/></label>
-            <input onchange={on_day_input} type="number" placeholder="Deadline day" min="1" max="28" name="reminderday" />
+            <input onchange={on_day_input} type="number" min="1" max="28" name="reminderday" />
             <br/><br/>
 
             { for month_checkboxes }

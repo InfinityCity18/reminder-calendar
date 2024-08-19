@@ -38,6 +38,27 @@ async fn main() -> Result<()> {
 #[instrument]
 async fn add_reminder(payload: ReminderAddData, path: &str) -> impl IntoResponse {
     info!("ADD REMINDER");
+    use std::io::BufWriter;
+    let mut d = get_data_from_json_file(path).unwrap();
+
+    let backup = std::fs::File::create(path.to_owned() + ".backup").unwrap();
+    let backup_writer = BufWriter::new(backup);
+    serde_json::to_writer(backup_writer, &d).unwrap();
+
+    for month_to_add_index in payload.months {
+        let month = &mut d.months_reminders[month_to_add_index as usize];
+        let remd = Reminder {
+            name: payload.name.clone(),
+            day: payload.day as u8,
+            checked: false,
+            month: month_to_add_index as u8,
+        };
+        month.push(remd);
+    }
+    let file = std::fs::File::create(path).unwrap();
+    let writer = BufWriter::new(file);
+
+    serde_json::to_writer(writer, &d).unwrap();
 
     let mut headers = HeaderMap::new();
     headers.insert("Access-Control-Allow-Origin", "*".parse().unwrap());
