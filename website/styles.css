@@ -58,6 +58,25 @@ input.remindercheckbox {
   z-index: 2137;
 }
 
+.deleteform {
+  position: fixed;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #e8e8e8;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding-left: 5px;
+  padding-right: 5px;
+  border-radius: 15px;
+  background-color: #44464a;
+  z-index: 2137;
+}
+
+.delete-name-input {
+  color: #e8e8e8;
+}
+
 .topbar {
   margin-left: -10px;
   margin-right: -10px;
@@ -103,6 +122,19 @@ input.remindercheckbox {
 
 
 .send-form-button {
+  display: block;
+  margin-left: auto;
+  margin-bottom: 15px;
+  margin-right: auto;
+  text-align: center;
+  color: #E8E8E8;
+  border-style: solid;
+  border-color: #E8E8E8;
+  border-radius: 5px;
+  background-color: #44464a;
+}
+
+.send-delete-button {
   display: block;
   margin-left: auto;
   margin-bottom: 15px;
@@ -190,6 +222,7 @@ input.remindercheckbox {
     background-color: #44464a;
     z-index: 2137;
   }
+
   .delete-reminder-button {
     margin-left: 5px;
     margin-right: 5px;
@@ -205,6 +238,34 @@ input.remindercheckbox {
     background-color: #F86C55;
     font-size: 2em;    float: right;
     float: right
+  }
+
+  .deleteform {
+    position: fixed;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #e8e8e8;
+    top: 50%;
+    left: 50%;
+    transform: scale(2.25);
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 15px;
+    background-color: #44464a;
+    z-index: 2137;
+  }
+
+  .send-delete-button {
+    display: block;
+    margin-left: auto;
+    margin-bottom: 15px;
+    margin-right: auto;
+    text-align: center;
+    color: #E8E8E8;
+    border-style: solid;
+    border-color: #E8E8E8;
+    border-radius: 5px;
+    background-color: #44464a;
   }
 
 }

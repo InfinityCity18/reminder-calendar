@@ -29,7 +29,15 @@ async fn main() -> Result<()> {
                 add_reminder(payload, path).await
             })
             .options(cors_shenanigans),
+        )
+        .route(
+            "/delete",
+            post(|Json(payload): Json<ReminderDeleteData>| async {
+                delete_reminder(payload, path).await
+            })
+            .options(cors_shenanigans),
         );
+
     let listener = tokio::net::TcpListener::bind(BIND_SOCK_ADDR).await.unwrap();
     axum::serve(listener, app).await?;
     Ok(())
@@ -58,6 +66,32 @@ async fn add_reminder(payload: ReminderAddData, path: &str) -> impl IntoResponse
     let file = std::fs::File::create(path).unwrap();
     let writer = BufWriter::new(file);
 
+    serde_json::to_writer(writer, &d).unwrap();
+
+    let mut headers = HeaderMap::new();
+    headers.insert("Access-Control-Allow-Origin", "*".parse().unwrap());
+    headers
+}
+
+#[instrument]
+async fn delete_reminder(payload: ReminderDeleteData, path: &str) -> impl IntoResponse {
+    info!("GOT DELETE REMINDER : {:?}", &payload);
+    use std::io::BufWriter;
+    let mut d = get_data_from_json_file(path).unwrap();
+
+    let backup = std::fs::File::create(path.to_owned() + ".backup").unwrap();
+    let backup_writer = BufWriter::new(backup);
+
+    serde_json::to_writer(backup_writer, &d).unwrap();
+
+    for v in &mut d.months_reminders {
+        v.retain(|r| {
+            return !(r.name == payload.name);
+        })
+    }
+
+    let file = std::fs::File::create(path).unwrap();
+    let writer = BufWriter::new(file);
     serde_json::to_writer(writer, &d).unwrap();
 
     let mut headers = HeaderMap::new();
@@ -141,4 +175,9 @@ pub struct ReminderAddData {
     pub day: i32,
     pub name: String,
     pub months: Vec<i32>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct ReminderDeleteData {
+    pub name: String,
 }

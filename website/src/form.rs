@@ -6,6 +6,13 @@ use std::collections::hash_set::HashSet;
 use wasm_bindgen::JsCast;
 use web_sys::{EventTarget, HtmlInputElement};
 use yew::prelude::*;
+use yew_router::prelude::*;
+
+#[derive(Clone, Routable, PartialEq)]
+enum Route {
+    #[at("/")]
+    Home,
+}
 
 #[function_component]
 pub fn Form(props: &FormProps) -> Html {
@@ -13,10 +20,17 @@ pub fn Form(props: &FormProps) -> Html {
     let set = use_state(|| HashSet::<i32>::new());
     let reminder_name = use_state(|| String::new());
     let reminder_day = use_state(|| 0);
+    let delete_hidden = use_state(|| true);
+    let deletion_input = use_state(|| String::new());
 
     let form_hidden_clone = form_hidden.clone();
     let change_form_vis = Callback::from(move |_| {
         form_hidden_clone.set(!(*form_hidden_clone));
+    });
+
+    let delete_hidden_clone = delete_hidden.clone();
+    let change_delete_vis = Callback::from(move |_| {
+        delete_hidden_clone.set(!(*delete_hidden_clone));
     });
 
     let month_checkboxes = props.months.iter().zip(0..=11).map(|(month_name, i)| {
@@ -61,9 +75,20 @@ pub fn Form(props: &FormProps) -> Html {
         }
     });
 
+    let deletion_input_clone = deletion_input.clone();
+    let on_delete_name_input = Callback::from(move |e: Event| {
+        let target: Option<EventTarget> = e.target();
+        let input = target.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
+
+        if let Some(input) = input {
+            deletion_input_clone.set(input.value());
+        }
+    });
+
     let reminder_name = reminder_name.clone();
     let reminder_day = reminder_day.clone();
     let set = set.clone();
+    let form_hidden_clone = form_hidden.clone();
 
     let send_reminder = Callback::from(move |_| {
         let reminder_name = reminder_name.clone();
@@ -87,13 +112,35 @@ pub fn Form(props: &FormProps) -> Html {
                 .await
                 .unwrap();
         });
+        form_hidden_clone.set(true);
+    });
+
+    let delete_hidden_clone = delete_hidden.clone();
+    let send_deletion = Callback::from(move |_| {
+        let deletion_input_clone = deletion_input.clone();
+        wasm_bindgen_futures::spawn_local(async move {
+            let post_json = ReminderDeleteData {
+                name: (*deletion_input_clone).clone(),
+            };
+
+            let post_json = serde_json::to_value(post_json).unwrap();
+            debug!("POST JSON DELETE REMINDER : {:?}", &post_json);
+
+            Request::post(&(SERVER_URL.to_owned() + "/delete"))
+                .json(&post_json)
+                .expect("sending delete reminder post failed")
+                .send()
+                .await
+                .unwrap();
+        });
+        delete_hidden_clone.set(true);
     });
 
     html! {
         <>
         <div class="topbar">
         <input class="toggle-form-button" type="button" onclick={change_form_vis} value={"Add reminder"} />
-        <input class="delete-reminder-button" type="button" /*onclick={change_delete_vis}*/ value={"Delete reminder"} />
+        <input class="delete-reminder-button" type="button" onclick={change_delete_vis} value={"Delete reminder"} />
         </div>
         <div class="reminderform" hidden={*form_hidden}>
             <label class="form-name-input" for="remindername">{"Name of the reminder:"}<br/></label>
@@ -109,6 +156,13 @@ pub fn Form(props: &FormProps) -> Html {
             <br/>
             <input class="send-form-button" type="button" onclick={send_reminder} value={"Send"} />
         </div>
+        <div class="deleteform" hidden={*delete_hidden}>
+            <label class="delete-name-input" for="deleteremindername">{"Name of the reminder:"}<br/></label>
+            <input onchange={on_delete_name_input} type="text" name="deleteremindername" />
+            <br/><br/>
+
+            <input class="send-delete-button" type="button" onclick={send_deletion} value={"Send"} />
+        </div>
         </>
     }
 }
@@ -123,4 +177,9 @@ pub struct ReminderAddData {
     pub day: i32,
     pub name: String,
     pub months: HashSet<i32>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct ReminderDeleteData {
+    pub name: String,
 }
