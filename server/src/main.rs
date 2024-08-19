@@ -43,6 +43,10 @@ async fn main() -> Result<()> {
                 uncheck_reminders(payload, path).await
             })
             .options(cors_shenanigans),
+        )
+        .route(
+            "/notification",
+            get(|| async { send_notification_info(path).await }),
         );
 
     let listener = tokio::net::TcpListener::bind(BIND_SOCK_ADDR).await.unwrap();
@@ -78,6 +82,17 @@ async fn add_reminder(payload: ReminderAddData, path: &str) -> impl IntoResponse
     let mut headers = HeaderMap::new();
     headers.insert("Access-Control-Allow-Origin", "*".parse().unwrap());
     headers
+}
+
+async fn send_notification_info(path: &str) -> impl IntoResponse {
+    let incoming = Vec::new();
+
+    use std::io::BufWriter;
+    let mut d = get_data_from_json_file(path).unwrap();
+
+    let backup = std::fs::File::create(path.to_owned() + ".backup").unwrap();
+    let backup_writer = BufWriter::new(backup);
+    serde_json::to_writer(backup_writer, &d).unwrap();
 }
 
 async fn uncheck_reminders(_payload: UncheckData, path: &str) -> impl IntoResponse {

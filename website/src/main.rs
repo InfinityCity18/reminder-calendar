@@ -4,12 +4,19 @@ use gloo_net::http::Request;
 use log::{debug, info};
 use monthlist::MonthListProps;
 use yew::prelude::*;
+use yew_router::prelude::*;
 
 mod form;
 mod monthlist;
 mod reminder;
 
 const SERVER_URL: &str = "http://10.21.37.100:2137"; // CHANGE TO TAKE ARGUMENTS OR ENV
+
+#[derive(Clone, Routable, PartialEq)]
+enum Route {
+    #[at("/")]
+    Home,
+}
 
 #[function_component]
 fn App() -> Html {
@@ -40,7 +47,6 @@ fn App() -> Html {
             || ()
         });
     }
-    debug!("HOOK : {:?}", &hook);
     html! {
         <>
         <Form months={(*hook).months_names.clone()}/>
@@ -49,20 +55,21 @@ fn App() -> Html {
     }
 }
 
-fn main() {
-    yew::Renderer::<App>::new().render();
+fn switch(routes: Route) -> Html {
+    match routes {
+        Route::Home => html! { <App/> },
+    }
 }
 
-//let reminders = use_state(|| vec![]);
-//
-//    let reminders_clone = reminders.clone();
-//    let reminders = wasm_bindgen_futures::spawn_local(async move {
-//        let fetched_reminders: Vec<Reminder> = Request::get(SERVER_URL)
-//            .send()
-//            .await
-//            .unwrap()
-//            .json()
-//            .await
-//            .unwrap();
-//        reminders_clone.set(fetched_reminders);
-//    });
+#[function_component]
+fn Main() -> Html {
+    html! {
+        <BrowserRouter>
+            <Switch<Route> render={switch} /> // <- must be child of <BrowserRouter>
+        </BrowserRouter>
+    }
+}
+
+fn main() {
+    yew::Renderer::<Main>::new().render();
+}

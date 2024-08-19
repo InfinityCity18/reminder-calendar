@@ -112,6 +112,9 @@ pub fn Form(props: &FormProps) -> Html {
                 .send()
                 .await
                 .unwrap();
+            if let Some(w) = web_sys::window() {
+                w.location().reload().unwrap();
+            }
         });
         form_hidden_clone.set(true);
     });
@@ -133,6 +136,9 @@ pub fn Form(props: &FormProps) -> Html {
                 .send()
                 .await
                 .unwrap();
+            if let Some(w) = web_sys::window() {
+                w.location().reload().unwrap();
+            }
         });
         delete_hidden_clone.set(true);
     });
@@ -156,7 +162,10 @@ pub fn Form(props: &FormProps) -> Html {
                 .send()
                 .await
                 .unwrap();
-        })
+            if let Some(w) = web_sys::window() {
+                w.location().reload().unwrap();
+            }
+        });
     });
 
     html! {
