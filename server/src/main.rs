@@ -36,6 +36,13 @@ async fn main() -> Result<()> {
                 delete_reminder(payload, path).await
             })
             .options(cors_shenanigans),
+        )
+        .route(
+            "/uncheck",
+            post(|Json(payload): Json<UncheckData>| async {
+                uncheck_reminders(payload, path).await
+            })
+            .options(cors_shenanigans),
         );
 
     let listener = tokio::net::TcpListener::bind(BIND_SOCK_ADDR).await.unwrap();
@@ -45,7 +52,7 @@ async fn main() -> Result<()> {
 
 #[instrument]
 async fn add_reminder(payload: ReminderAddData, path: &str) -> impl IntoResponse {
-    info!("ADD REMINDER");
+    info!("add reminder");
     use std::io::BufWriter;
     let mut d = get_data_from_json_file(path).unwrap();
 
@@ -63,6 +70,31 @@ async fn add_reminder(payload: ReminderAddData, path: &str) -> impl IntoResponse
         };
         month.push(remd);
     }
+    let file = std::fs::File::create(path).unwrap();
+    let writer = BufWriter::new(file);
+
+    serde_json::to_writer(writer, &d).unwrap();
+
+    let mut headers = HeaderMap::new();
+    headers.insert("Access-Control-Allow-Origin", "*".parse().unwrap());
+    headers
+}
+
+async fn uncheck_reminders(_payload: UncheckData, path: &str) -> impl IntoResponse {
+    info!("UNCHECKING REMINDERS");
+    use std::io::BufWriter;
+    let mut d = get_data_from_json_file(path).unwrap();
+
+    let backup = std::fs::File::create(path.to_owned() + ".backup").unwrap();
+    let backup_writer = BufWriter::new(backup);
+    serde_json::to_writer(backup_writer, &d).unwrap();
+
+    for v in &mut d.months_reminders {
+        for r in v {
+            r.checked = false;
+        }
+    }
+
     let file = std::fs::File::create(path).unwrap();
     let writer = BufWriter::new(file);
 
@@ -180,4 +212,9 @@ pub struct ReminderAddData {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct ReminderDeleteData {
     pub name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct UncheckData {
+    pub uncheck: bool,
 }

@@ -22,6 +22,7 @@ pub fn Form(props: &FormProps) -> Html {
     let reminder_day = use_state(|| 0);
     let delete_hidden = use_state(|| true);
     let deletion_input = use_state(|| String::new());
+    let uncheck_state = use_state(|| false);
 
     let form_hidden_clone = form_hidden.clone();
     let change_form_vis = Callback::from(move |_| {
@@ -136,11 +137,34 @@ pub fn Form(props: &FormProps) -> Html {
         delete_hidden_clone.set(true);
     });
 
+    let uncheck_state_clone = uncheck_state.clone();
+    let send_uncheck = Callback::from(move |_| {
+        if !(*uncheck_state_clone) {
+            uncheck_state_clone.set(true);
+            return;
+        }
+
+        wasm_bindgen_futures::spawn_local(async move {
+            let post_json = UncheckData { uncheck: true };
+
+            let post_json = serde_json::to_value(post_json).unwrap();
+            debug!("POST JSON UNCHECK : {:?}", &post_json);
+
+            Request::post(&(SERVER_URL.to_owned() + "/uncheck"))
+                .json(&post_json)
+                .expect("sending delete reminder post failed")
+                .send()
+                .await
+                .unwrap();
+        })
+    });
+
     html! {
         <>
         <div class="topbar">
         <input class="toggle-form-button" type="button" onclick={change_form_vis} value={"Add reminder"} />
         <input class="delete-reminder-button" type="button" onclick={change_delete_vis} value={"Delete reminder"} />
+        <input class="uncheck-reminder-button" type="button" onclick={send_uncheck} value={"Uncheck all, double click"} />
         </div>
         <div class="reminderform" hidden={*form_hidden}>
             <label class="form-name-input" for="remindername">{"Name of the reminder:"}<br/></label>
@@ -182,4 +206,9 @@ pub struct ReminderAddData {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct ReminderDeleteData {
     pub name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct UncheckData {
+    pub uncheck: bool,
 }
