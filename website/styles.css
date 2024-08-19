@@ -43,6 +43,11 @@ input.remindercheckbox {
   color: #e8e8e8;
 }
 
+.deadline-input {
+  width: 10px;
+  color: #e8e8e8;
+}
+
 .reminderform {
   position: fixed;
   border-width: 5px;

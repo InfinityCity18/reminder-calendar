@@ -1,1 +1,1 @@
-{"months_names":["January","February","March","April","May","June","July","August","September","October","November","December"],"months_reminders":[[],[],[],[],[],[],[],[],[],[],[],[]]}
+{"months_names":["January","February","March","April","May","June","July","August","September","October","November","December"],"months_reminders":[[{"name":"Zus","day":15,"checked":false,"month":0,"deadline_remind":3}],[],[{"name":"Zus","day":15,"checked":false,"month":2,"deadline_remind":3}],[],[],[],[],[],[],[],[],[]]}

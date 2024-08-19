@@ -23,6 +23,7 @@ pub fn Form(props: &FormProps) -> Html {
     let delete_hidden = use_state(|| true);
     let deletion_input = use_state(|| String::new());
     let uncheck_state = use_state(|| false);
+    let deadline_remind_state = use_state(|| 0);
 
     let form_hidden_clone = form_hidden.clone();
     let change_form_vis = Callback::from(move |_| {
@@ -86,6 +87,16 @@ pub fn Form(props: &FormProps) -> Html {
         }
     });
 
+    let deadline_remind_state_clone = deadline_remind_state.clone();
+    let on_deadline_input = Callback::from(move |e: Event| {
+        let target: Option<EventTarget> = e.target();
+        let input = target.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
+
+        if let Some(input) = input {
+            deadline_remind_state_clone.set(input.value().parse().unwrap());
+        }
+    });
+
     let reminder_name = reminder_name.clone();
     let reminder_day = reminder_day.clone();
     let set = set.clone();
@@ -95,12 +106,14 @@ pub fn Form(props: &FormProps) -> Html {
         let reminder_name = reminder_name.clone();
         let reminder_day = reminder_day.clone();
         let set = set.clone();
+        let deadline_remind_state_clone = deadline_remind_state.clone();
         debug!("SENDING REMINDER TO ADD");
         wasm_bindgen_futures::spawn_local(async move {
             let post_json = ReminderAddData {
                 day: *reminder_day,
                 name: (*reminder_name).clone(),
                 months: (*set).clone(),
+                deadline_remind: *deadline_remind_state_clone,
             };
 
             let post_json = serde_json::to_value(post_json).unwrap();
@@ -184,6 +197,10 @@ pub fn Form(props: &FormProps) -> Html {
             <input onchange={on_day_input} type="number" min="1" max="28" name="reminderday" />
             <br/><br/>
 
+            <label class="deadline-input" for="deadline_remind">{"Days to send notification before deadline:"}<br/></label>
+            <input onchange={on_deadline_input} type="number" min="1" max="28" name="deadline_remind" />
+            <br/><br/>
+
             { for month_checkboxes }
 
             <br/>
@@ -210,6 +227,7 @@ pub struct ReminderAddData {
     pub day: i32,
     pub name: String,
     pub months: HashSet<i32>,
+    pub deadline_remind: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

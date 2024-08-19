@@ -1,3 +1,5 @@
+use core::panic;
+
 use anyhow::Result;
 use axum::http::HeaderMap;
 use axum::response::IntoResponse;
@@ -62,7 +64,7 @@ async fn add_reminder(payload: ReminderAddData, path: &str) -> impl IntoResponse
 
     let backup = std::fs::File::create(path.to_owned() + ".backup").unwrap();
     let backup_writer = BufWriter::new(backup);
-    serde_json::to_writer(backup_writer, &d).unwrap();
+    serde_json::to_writer_pretty(backup_writer, &d).unwrap();
 
     for month_to_add_index in payload.months {
         let month = &mut d.months_reminders[month_to_add_index as usize];
@@ -71,13 +73,15 @@ async fn add_reminder(payload: ReminderAddData, path: &str) -> impl IntoResponse
             day: payload.day as u8,
             checked: false,
             month: month_to_add_index as u8,
+            deadline_remind: payload.deadline_remind,
         };
         month.push(remd);
     }
     let file = std::fs::File::create(path).unwrap();
     let writer = BufWriter::new(file);
 
-    serde_json::to_writer(writer, &d).unwrap();
+    info!("JSON BEFORE SAVING : {:?}", &d);
+    serde_json::to_writer_pretty(writer, &d).unwrap();
 
     let mut headers = HeaderMap::new();
     headers.insert("Access-Control-Allow-Origin", "*".parse().unwrap());
@@ -85,14 +89,10 @@ async fn add_reminder(payload: ReminderAddData, path: &str) -> impl IntoResponse
 }
 
 async fn send_notification_info(path: &str) -> impl IntoResponse {
-    let incoming = Vec::new();
+    //let incoming = Vec::new();
 
     use std::io::BufWriter;
     let mut d = get_data_from_json_file(path).unwrap();
-
-    let backup = std::fs::File::create(path.to_owned() + ".backup").unwrap();
-    let backup_writer = BufWriter::new(backup);
-    serde_json::to_writer(backup_writer, &d).unwrap();
 }
 
 async fn uncheck_reminders(_payload: UncheckData, path: &str) -> impl IntoResponse {
@@ -102,7 +102,7 @@ async fn uncheck_reminders(_payload: UncheckData, path: &str) -> impl IntoRespon
 
     let backup = std::fs::File::create(path.to_owned() + ".backup").unwrap();
     let backup_writer = BufWriter::new(backup);
-    serde_json::to_writer(backup_writer, &d).unwrap();
+    serde_json::to_writer_pretty(backup_writer, &d).unwrap();
 
     for v in &mut d.months_reminders {
         for r in v {
@@ -113,7 +113,7 @@ async fn uncheck_reminders(_payload: UncheckData, path: &str) -> impl IntoRespon
     let file = std::fs::File::create(path).unwrap();
     let writer = BufWriter::new(file);
 
-    serde_json::to_writer(writer, &d).unwrap();
+    serde_json::to_writer_pretty(writer, &d).unwrap();
 
     let mut headers = HeaderMap::new();
     headers.insert("Access-Control-Allow-Origin", "*".parse().unwrap());
@@ -129,7 +129,7 @@ async fn delete_reminder(payload: ReminderDeleteData, path: &str) -> impl IntoRe
     let backup = std::fs::File::create(path.to_owned() + ".backup").unwrap();
     let backup_writer = BufWriter::new(backup);
 
-    serde_json::to_writer(backup_writer, &d).unwrap();
+    serde_json::to_writer_pretty(backup_writer, &d).unwrap();
 
     for v in &mut d.months_reminders {
         v.retain(|r| {
@@ -139,7 +139,7 @@ async fn delete_reminder(payload: ReminderDeleteData, path: &str) -> impl IntoRe
 
     let file = std::fs::File::create(path).unwrap();
     let writer = BufWriter::new(file);
-    serde_json::to_writer(writer, &d).unwrap();
+    serde_json::to_writer_pretty(writer, &d).unwrap();
 
     let mut headers = HeaderMap::new();
     headers.insert("Access-Control-Allow-Origin", "*".parse().unwrap());
@@ -167,7 +167,7 @@ async fn checkbox(payload: CheckboxPostData, path: &str) -> impl IntoResponse {
 
     let backup = std::fs::File::create(path.to_owned() + ".backup").unwrap();
     let backup_writer = BufWriter::new(backup);
-    serde_json::to_writer(backup_writer, &d).unwrap();
+    serde_json::to_writer_pretty(backup_writer, &d).unwrap();
 
     for remd in &mut d.months_reminders[payload.reminder_month as usize] {
         info!("REMINDER : {:?}", remd);
@@ -181,7 +181,7 @@ async fn checkbox(payload: CheckboxPostData, path: &str) -> impl IntoResponse {
     let file = std::fs::File::create(path).unwrap();
     let writer = BufWriter::new(file);
 
-    serde_json::to_writer(writer, &d).unwrap();
+    serde_json::to_writer_pretty(writer, &d).unwrap();
 
     let mut headers = HeaderMap::new();
     headers.insert("Access-Control-Allow-Origin", "*".parse().unwrap());
@@ -200,6 +200,7 @@ struct Reminder {
     pub day: u8,
     pub checked: bool,
     pub month: u8,
+    pub deadline_remind: i32,
 }
 
 fn get_data_from_json_file(path: &str) -> Result<RemindersData> {
@@ -222,6 +223,7 @@ pub struct ReminderAddData {
     pub day: i32,
     pub name: String,
     pub months: Vec<i32>,
+    pub deadline_remind: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
