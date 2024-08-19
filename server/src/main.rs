@@ -5,6 +5,7 @@ use axum::http::HeaderMap;
 use axum::response::IntoResponse;
 use axum::routing::{get, post};
 use axum::{Json, Router};
+use chrono::Datelike;
 use serde::{Deserialize, Serialize};
 use tracing::info;
 use tracing::instrument;
@@ -89,10 +90,31 @@ async fn add_reminder(payload: ReminderAddData, path: &str) -> impl IntoResponse
 }
 
 async fn send_notification_info(path: &str) -> impl IntoResponse {
-    //let incoming = Vec::new();
+    use chrono::Local;
+    use num::CheckedSub;
 
-    use std::io::BufWriter;
+    let incoming = Vec::new();
+
     let mut d = get_data_from_json_file(path).unwrap();
+    let now = Local::now();
+
+    for v in d.months_reminders {
+        for r in v {
+            if !r.checked {
+                let (day, month) =
+                    if let None = (r.day as u32).checked_sub(r.deadline_remind as u32) {
+                        let diff = r.day as i32 - r.deadline_remind as i32;
+                        let day = get_days_from_month(now.year(), r.month.into() - 1);
+                        let day = day as i32 - diff;
+                        (day, r.month - 1)
+                    } else {
+                        (r.day as i32 - r.deadline_remind as i32, r.month)
+                    };
+
+                if (r.day as u32 == now.day().checked_sub(offset)) {}
+            }
+        }
+    }
 }
 
 async fn uncheck_reminders(_payload: UncheckData, path: &str) -> impl IntoResponse {
@@ -234,4 +256,23 @@ pub struct ReminderDeleteData {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct UncheckData {
     pub uncheck: bool,
+}
+
+pub fn get_days_from_month(year: i32, month: u32) -> i64 {
+    chrono::NaiveDate::from_ymd_opt(
+        match month {
+            12 => year + 1,
+            _ => year,
+        },
+        match month {
+            12 => 1,
+            _ => month + 1,
+        },
+        1,
+    )
+    .expect("conversion failed")
+    .signed_duration_since(
+        chrono::NaiveDate::from_ymd_opt(year, month, 1).expect("conversion failed"),
+    )
+    .num_days()
 }
