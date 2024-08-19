@@ -1,5 +1,3 @@
-use core::panic;
-
 use anyhow::Result;
 use axum::http::HeaderMap;
 use axum::response::IntoResponse;
@@ -89,13 +87,15 @@ async fn add_reminder(payload: ReminderAddData, path: &str) -> impl IntoResponse
     headers
 }
 
+#[instrument]
 async fn send_notification_info(path: &str) -> impl IntoResponse {
     use chrono::Local;
-    use num::CheckedSub;
 
-    let incoming = Vec::new();
+    info!("CLIENT WANTS NOTIFICATION INFO");
 
-    let mut d = get_data_from_json_file(path).unwrap();
+    let mut incoming = Vec::new();
+
+    let d = get_data_from_json_file(path).unwrap();
     let now = Local::now();
 
     for v in d.months_reminders {
@@ -104,17 +104,30 @@ async fn send_notification_info(path: &str) -> impl IntoResponse {
                 let (day, month) =
                     if let None = (r.day as u32).checked_sub(r.deadline_remind as u32) {
                         let diff = r.day as i32 - r.deadline_remind as i32;
-                        let day = get_days_from_month(now.year(), r.month.into() - 1);
-                        let day = day as i32 - diff;
-                        (day, r.month - 1)
+                        let day = get_days_from_month(now.year(), (r.month + 1) as u32 - 1);
+                        let day = day as i32 + diff;
+                        (day, r.month)
                     } else {
-                        (r.day as i32 - r.deadline_remind as i32, r.month)
+                        (r.day as i32 - r.deadline_remind as i32, r.month + 1)
                     };
+                info!("DAY : {}, MONTH : {}", day, month);
 
-                if (r.day as u32 == now.day().checked_sub(offset)) {}
+                if now.day() == day as u32 && now.month() == month as u32 {
+                    incoming.push(r.clone());
+                }
             }
         }
     }
+
+    let mut response = String::new();
+    for r in incoming {
+        response += &(format!(
+            "{} : {} {}, ",
+            r.name, d.months_names[r.month as usize], r.day
+        ));
+    }
+    info!("RESPONSE : {:?}", response);
+    response
 }
 
 async fn uncheck_reminders(_payload: UncheckData, path: &str) -> impl IntoResponse {
