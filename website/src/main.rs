@@ -1,3 +1,4 @@
+use crate::consts::SERVER_URL;
 use crate::form::Form;
 use crate::monthlist::MonthList;
 use gloo_net::http::Request;
@@ -5,11 +6,10 @@ use monthlist::MonthListProps;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
+mod consts;
 mod form;
 mod monthlist;
 mod reminder;
-
-const SERVER_URL: &str = "http://10.21.37.100:12137";
 
 #[derive(Clone, Routable, PartialEq)]
 enum Route {

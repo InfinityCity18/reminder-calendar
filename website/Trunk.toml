@@ -1,4 +1,4 @@
 [serve]
 headers = { "Access-Control-Allow-Origin" = "*"}
-address = "10.21.37.100"
+address = "127.0.0.1"
 port = 8000
