@@ -1,5 +1,4 @@
 use gloo_net::http::Request;
-use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use yew::prelude::*;
 
@@ -18,11 +17,9 @@ pub fn Reminder(props: &ReminderProps) -> Html {
     let is_checked = use_state(|| props.checked);
     let props_clone = props.clone();
     let is_checked_clone = is_checked.clone();
-    info!("BEFORE SETTING {:?}", *is_checked);
 
     let on_checking = Callback::from(move |_| {
         is_checked_clone.set(!(*is_checked_clone));
-        info!("AFTER SETTING {:?}", *is_checked_clone);
         let reminder_month = props_clone.month.clone();
         let reminder_name = props_clone.name.clone();
         let is_checked_clone_async = is_checked_clone.clone();
@@ -32,7 +29,6 @@ pub fn Reminder(props: &ReminderProps) -> Html {
                 reminder_month,
                 reminder_name,
             };
-            debug!("HI {:?}", &post_json);
 
             let post_json = serde_json::to_value(post_json).unwrap();
 

@@ -1,7 +1,6 @@
 use crate::form::Form;
 use crate::monthlist::MonthList;
 use gloo_net::http::Request;
-use log::{debug, info};
 use monthlist::MonthListProps;
 use yew::prelude::*;
 use yew_router::prelude::*;
@@ -10,7 +9,7 @@ mod form;
 mod monthlist;
 mod reminder;
 
-const SERVER_URL: &str = "http://10.21.37.100:2137"; // CHANGE TO TAKE ARGUMENTS OR ENV
+const SERVER_URL: &str = "http://10.21.37.100:12137";
 
 #[derive(Clone, Routable, PartialEq)]
 enum Route {
@@ -21,7 +20,6 @@ enum Route {
 #[function_component]
 fn App() -> Html {
     wasm_logger::init(wasm_logger::Config::default());
-    info!("TEST");
     let hook = use_state(|| MonthListProps {
         months_reminders: Vec::new(),
         months_names: Vec::new(),
@@ -35,14 +33,11 @@ fn App() -> Html {
                     .send()
                     .await
                     .expect("failed to initalize months");
-                debug!("help me : ");
                 let data: MonthListProps = response
                     .json()
                     .await
                     .expect("deserialization of months failed");
-                debug!("DATA : {:?}", &data);
                 hook.set(data);
-                debug!("WHAT");
             });
             || ()
         });

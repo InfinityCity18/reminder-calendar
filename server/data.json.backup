@@ -20,68 +20,9 @@
     [],
     [],
     [],
-    [
-      {
-        "name": "bajo jajo",
-        "day": 22,
-        "checked": false,
-        "month": 6,
-        "deadline_remind": 3
-      },
-      {
-        "name": "wduauih",
-        "day": 23,
-        "checked": false,
-        "month": 6,
-        "deadline_remind": 4
-      },
-      {
-        "name": "wdadawws",
-        "day": 19,
-        "checked": false,
-        "month": 6,
-        "deadline_remind": 0
-      }
-    ],
-    [
-      {
-        "name": "bajo jajo",
-        "day": 22,
-        "checked": false,
-        "month": 7,
-        "deadline_remind": 3
-      },
-      {
-        "name": "awdw",
-        "day": 23,
-        "checked": false,
-        "month": 7,
-        "deadline_remind": 4
-      },
-      {
-        "name": "wdadwa1",
-        "day": 19,
-        "checked": false,
-        "month": 7,
-        "deadline_remind": 0
-      }
-    ],
-    [
-      {
-        "name": "bajo jajo",
-        "day": 22,
-        "checked": false,
-        "month": 8,
-        "deadline_remind": 3
-      },
-      {
-        "name": "wdaw",
-        "day": 1,
-        "checked": false,
-        "month": 8,
-        "deadline_remind": 13
-      }
-    ],
+    [],
+    [],
+    [],
     [],
     [],
     []

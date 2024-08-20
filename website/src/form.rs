@@ -1,6 +1,5 @@
 use crate::SERVER_URL;
 use gloo_net::http::Request;
-use log::debug;
 use serde::{Deserialize, Serialize};
 use std::collections::hash_set::HashSet;
 use wasm_bindgen::JsCast;
@@ -107,7 +106,6 @@ pub fn Form(props: &FormProps) -> Html {
         let reminder_day = reminder_day.clone();
         let set = set.clone();
         let deadline_remind_state_clone = deadline_remind_state.clone();
-        debug!("SENDING REMINDER TO ADD");
         wasm_bindgen_futures::spawn_local(async move {
             let post_json = ReminderAddData {
                 day: *reminder_day,
@@ -117,7 +115,6 @@ pub fn Form(props: &FormProps) -> Html {
             };
 
             let post_json = serde_json::to_value(post_json).unwrap();
-            debug!("POST JSON ADD REMINDER : {:?}", &post_json);
 
             Request::post(&(SERVER_URL.to_owned() + "/add"))
                 .json(&post_json)
@@ -141,7 +138,6 @@ pub fn Form(props: &FormProps) -> Html {
             };
 
             let post_json = serde_json::to_value(post_json).unwrap();
-            debug!("POST JSON DELETE REMINDER : {:?}", &post_json);
 
             Request::post(&(SERVER_URL.to_owned() + "/delete"))
                 .json(&post_json)
@@ -167,7 +163,6 @@ pub fn Form(props: &FormProps) -> Html {
             let post_json = UncheckData { uncheck: true };
 
             let post_json = serde_json::to_value(post_json).unwrap();
-            debug!("POST JSON UNCHECK : {:?}", &post_json);
 
             Request::post(&(SERVER_URL.to_owned() + "/uncheck"))
                 .json(&post_json)
