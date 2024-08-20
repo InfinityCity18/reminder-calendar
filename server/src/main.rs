@@ -15,7 +15,7 @@ async fn main() -> Result<()> {
     tracing_subscriber::fmt().init();
 
     info!("Tracing initialized");
-    let path = "data.json";
+    let path = "/reminder-calendar/server/data.json";
 
     let app = Router::new()
         .route("/reminders", get(|| async { send_reminders(path).await }))
