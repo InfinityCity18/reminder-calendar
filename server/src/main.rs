@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use tracing::info;
 use tracing::instrument;
 
-const BIND_SOCK_ADDR: &str = "127.0.0.1:12137";
+const BIND_SOCK_ADDR: &str = "0.0.0.0:12137";
 
 #[tokio::main]
 async fn main() -> Result<()> {
