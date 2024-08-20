@@ -1,0 +1,11 @@
+services:
+  reminder-calendar:
+    container_name: reminder-calendar
+    image: infinitycity/reminder-calendar:latest
+    ports:
+      - "8000:8000/tcp"
+      - "12137:12137/tcp"
+    volumes:
+      - './data.json:/reminder-calendar/server/data.json'
+      - './consts.rs:/reminder-calendar/website/src/consts.rs'
+    restart: unless-stopped
