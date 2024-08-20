@@ -9,6 +9,5 @@ WORKDIR ../website
 RUN cargo install trunk
 RUN rustup target add wasm32-unknown-unknown
 RUN trunk build --release
-RUN cargo clean
 
 CMD trunk serve --release & cargo run --release --manifest-path ../server/Cargo.toml && fg
