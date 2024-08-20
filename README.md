@@ -1,7 +1,7 @@
 
 # Reminder calendar
 
-![Preview of website](/preview.jpg)
+![Preview of website](/preview.png)
 
 To run the container use:
 `sudo docker run -p 8000:8000 -p 12137:12137 -v ./data.json:/reminder-calendar/website/data.json -v ./consts.rs:/reminder-calendar/website/src/consts.rs infinitycity/reminder-calendar:latest`
