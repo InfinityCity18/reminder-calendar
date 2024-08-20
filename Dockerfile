@@ -3,7 +3,6 @@ FROM rust:1.80.1
 RUN git clone https://github.com/InfinityCity18/reminder-calendar
 WORKDIR reminder-calendar/server
 RUN cargo build --release
-RUN cargo clean
 
 WORKDIR ../website
 RUN cargo install trunk
